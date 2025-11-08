@@ -18,7 +18,7 @@ This application allows users to **record income and expenses**, categorize tran
 - **Filtering:** View transactions by **date**, **category**, or **amount**.
 - **Real-time Balance Calculation:** Automatically updates total balance.
 - **LocalStorage Support:** Saves data in browser storage so it **persists on refresh**.
-- **Download Data:** Export transactions as `.json` or `.csv` for backup.
+- **Download Data:** Export transactions as csv` for backup.
 - **Financial Chart Visualization:** Displays income vs expense trends using Recharts.
 
 ---
