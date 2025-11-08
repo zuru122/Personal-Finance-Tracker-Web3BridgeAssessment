@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import TransactionList from "./components/TransactionList";
 import InputForm from "./components/InputForm";
 import TransactionFilter from "./components/TransactionFilter";
+import TransactionChart from "./TransactionChart";
 
 function App() {
   const initialData = [];
@@ -63,6 +64,12 @@ function App() {
 
   return (
     <div className="container mt-5">
+      <div>
+        <button className="btn btn-success mb-3" onClick={downloadCSV}>
+          Download CSV
+        </button>
+      </div>
+      <h1>Personal Finance Tracker</h1>
       <InputForm addTransaction={addTransaction} />
       <TransactionFilter
         transactions={transactions}
@@ -73,9 +80,7 @@ function App() {
         deleteItem={deleteTransaction}
       />
 
-      <button className="btn btn-success mb-3" onClick={downloadCSV}>
-        Download CSV
-      </button>
+      <TransactionChart transactions={transactions} />
     </div>
   );
 }
