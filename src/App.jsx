@@ -1,62 +1,82 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TransactionList from "./components/TransactionList";
+import InputForm from "./components/InputForm";
+import TransactionFilter from "./components/TransactionFilter";
 
 function App() {
-  const [financeTracker, setFinanceTracker] = useState([
-    {
-      id: 1,
-      description: "2 packs of sugar",
-      amount: 50,
-      type: "expense",
-      category: "Groceries",
-      date: "2025-11-08",
-      note: "For baking",
-    },
-    {
-      id: 2,
-      description: "Salary for October",
-      amount: 3000,
-      type: "income",
-      category: "Salary",
-      date: "2025-11-01",
-      note: "",
-    },
-    {
-      id: 3,
-      description: "Electricity bill",
-      amount: 120,
-      type: "expense",
-      category: "Utilities",
-      date: "2025-11-05",
-      note: "Paid online",
-    },
-    {
-      id: 4,
-      description: "Freelance project",
-      amount: 800,
-      type: "income",
-      category: "Freelance",
-      date: "2025-11-07",
-      note: "Payment received via PayPal",
-    },
-    {
-      id: 5,
-      description: "Gym membership",
-      amount: 60,
-      type: "expense",
-      category: "Health",
-      date: "2025-11-03",
-      note: "",
-    },
-  ]);
+  const initialData = [];
 
-  const deleteItem = (id) => {
-    setFinanceTracker(financeTracker.filter((item) => item.id !== id));
+  const [transactions, setTransactions] = useState(() => {
+    const savedData = localStorage.getItem("financeData");
+    return savedData ? JSON.parse(savedData) : initialData;
+  });
+
+  const [filteredTransactions, setFilteredTransactions] =
+    useState(transactions);
+
+  useEffect(() => {
+    localStorage.setItem("financeData", JSON.stringify(transactions));
+  }, [transactions]);
+
+  const addTransaction = (data) => {
+    const newTransaction = {
+      id: Date.now(),
+      description: data.description,
+      amount: Number(data.amount),
+      type: data.type,
+      category: data.category,
+      date: data.date,
+      note: data.note || "",
+    };
+
+    const updatedTransactions = [...transactions, newTransaction];
+    setTransactions(updatedTransactions);
+    setFilteredTransactions(updatedTransactions);
   };
+
+  const deleteTransaction = (id) => {
+    const updatedTransactions = transactions.filter((item) => item.id !== id);
+    setTransactions(updatedTransactions);
+    setFilteredTransactions(updatedTransactions);
+  };
+
+  const downloadCSV = () => {
+    const headers = ["Description,Amount,Type,Category,Date,Note"];
+
+    const rows = transactions.map(
+      (item) =>
+        `${item.description},${item.amount},${item.type},${item.category},${
+          item.date
+        },${item.note ?? ""}`
+    );
+
+    const csvContent = [headers, ...rows].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "finance_tracker.csv");
+    link.click();
+  };
+
   return (
-    <>
-      <TransactionList items={financeTracker} deleteItem={deleteItem} />
-    </>
+    <div className="container mt-5">
+      <InputForm addTransaction={addTransaction} />
+      <TransactionFilter
+        transactions={transactions}
+        onFilter={(filtered) => setFilteredTransactions(filtered)}
+      />
+      <TransactionList
+        items={filteredTransactions}
+        deleteItem={deleteTransaction}
+      />
+
+      <button className="btn btn-success mb-3" onClick={downloadCSV}>
+        Download CSV
+      </button>
+    </div>
   );
 }
 
